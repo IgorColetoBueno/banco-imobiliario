@@ -1,10 +1,12 @@
 export class Participante {
   id?: number;
   nome: string;
-  historico: number[];
+  historico: Historico[];
 
   public get valor(): number {
-    return this.historico.reduce((previus, current) => previus + current, 0);
+    return this.historico
+      .map(item => item.valor)
+      .reduce((previus, current) => previus + current, 0);
   }
 
   public static mapListToParticipanteList(list: any[]) {
@@ -17,4 +19,9 @@ export class Participante {
       return obj;
     });
   }
+}
+
+export interface Historico {
+  valor: number;
+  observacao: string;
 }

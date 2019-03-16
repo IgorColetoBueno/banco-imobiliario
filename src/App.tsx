@@ -6,7 +6,7 @@ import { Navbar } from "./components/Navbar";
 import DatabaseManager from "./services/Database";
 import { Participante } from "./models/Participante";
 import { NumberUtil, FormatoUnidadeDeMedida } from "./utils/number";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 const STORE_NAME = "Participantes";
 
@@ -49,7 +49,7 @@ class App extends Component<Props, State> {
       Participante.mapListToParticipanteList
     )) as Participante[];
 
-    this.setState({ participantes });
+    await this.setState({ participantes });
   }
 
   renderCards() {
@@ -66,7 +66,7 @@ class App extends Component<Props, State> {
       );
 
       return (
-        <Col className="my-3" cols="12 3 3 3">
+        <Col key={`participante-${item.id}`} className="my-3" cols="12 3 3 3">
           <Card>
             <CardHeader>
               <CardTitle>{item.nome}</CardTitle>
@@ -74,11 +74,11 @@ class App extends Component<Props, State> {
             <CardBody className="d-flex justify-content-between">
               <h3>{valor}</h3>
               <div>
-                <button>
-                  <FontAwesomeIcon color="success" icon="plus" />
+                <button className="btn btn-success">
+                  <i className="fas fa-plus" />
                 </button>
-                <button>
-                  <i className="fa-fa-minus" />
+                <button className="btn btn-danger">
+                  <i className="fas fa-minus" />
                 </button>
               </div>
             </CardBody>
