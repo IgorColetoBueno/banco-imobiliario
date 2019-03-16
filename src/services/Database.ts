@@ -36,8 +36,7 @@ export default class DatabaseManager {
   public static criarStore(db: IDBDatabase, storeName) {
     if (!db.objectStoreNames.contains(storeName)) {
       db.createObjectStore(storeName, {
-        autoIncrement: true,
-        keyPath: "id"
+        autoIncrement: true
       });
     }
   }

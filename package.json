@@ -12,6 +12,7 @@
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-scripts": "2.1.8",
+    "reactstrap": "^7.1.0",
     "typescript": "3.3.3333"
   },
   "scripts": {
@@ -28,5 +29,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "@types/reactstrap": "^7.1.3"
+  }
 }

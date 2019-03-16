@@ -1,5 +1,5 @@
 export class Participante {
-  id?: number;
+  id: string;
   nome: string;
   historico: Historico[];
 
