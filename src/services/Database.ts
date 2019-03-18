@@ -18,8 +18,8 @@ export default class DatabaseManager {
       var db: IDBOpenDBRequest;
       db = this.indexedDB.open(this.databaseName, 1);
 
-      db.onupgradeneeded = function() {
-        var db = db.result;
+      db.onupgradeneeded = (e:any) => {
+        var db = e.target.result;
         DatabaseManager.criarStore(db, "Participantes");
       };
 
@@ -36,7 +36,8 @@ export default class DatabaseManager {
   public static criarStore(db: IDBDatabase, storeName) {
     if (!db.objectStoreNames.contains(storeName)) {
       db.createObjectStore(storeName, {
-        autoIncrement: true
+        autoIncrement: true,
+        keyPath:"id"
       });
     }
   }

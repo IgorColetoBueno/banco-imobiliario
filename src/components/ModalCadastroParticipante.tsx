@@ -14,20 +14,17 @@ import DatabaseManager from "../services/Database";
 import { PARTICIPANTES_STORE_NAME } from "../App";
 
 interface Props {
+  participanteId?: number;
   className?: string;
   toggle: Function;
   isOpen: boolean;
-  participante: Participante;
   modalId: string;
-  debito: boolean;
   onSave: Function;
-  onReset?: Function;
   onError?: Function;
 }
 
-export default function ModalOperacao(props: Props) {
-  const [valor, setValor] = React.useState(1);
-  const [observacao, setObservacao] = React.useState("");
+export default function ModalCadastroParticipante(props: Props) {
+  const [nome, setNome] = React.useState("");
 
   return (
     <Modal
@@ -35,28 +32,19 @@ export default function ModalOperacao(props: Props) {
       toggle={() => props.toggle()}
       className={props.className}
     >
-      <ModalHeader>{props.debito ? "Debitar" : "Creditar"}</ModalHeader>
+      <ModalHeader className="d-flex-justify-content-between">
+        {props.participanteId ? "Editar" : "Novo"}
+      </ModalHeader>
       <ModalBody>
         <FormGroup>
-          <Label>Valor</Label>
+          <Label>Nome</Label>
           <Input
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setValor(parseFloat(e.target.value || "0"))
+              setNome(e.target.value)
             }
-            placeholder="Digite o valor"
-            type="number"
-            value={valor}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Observação</Label>
-          <Input
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setObservacao(e.target.value)
-            }
-            placeholder="Digite a observação"
+            placeholder="Digite o nome"
             type="text"
-            value={observacao}
+            value={nome}
           />
         </FormGroup>
       </ModalBody>
@@ -65,15 +53,16 @@ export default function ModalOperacao(props: Props) {
           color="success"
           onClick={async () => {
             try {
-              let { participante } = props;
-              let montante = props.debito ? (valor * -1) : valor
-              let obj = { ...participante, historico: [...participante.historico, { valor: montante, observacao }] } as Participante;
-              const db = new DatabaseManager(PARTICIPANTES_STORE_NAME)
+              const db = new DatabaseManager(PARTICIPANTES_STORE_NAME);
+              let { id, ...obj } = new Participante();
 
-              await db.salvar(obj)
-              
-              setValor(1)
-              setObservacao("")
+              if (props.participanteId) {
+                obj = await db.obterUm(props.participanteId)
+              }
+
+              obj.nome = nome;
+              await db.salvar(obj);
+
               props.onSave();
               props.toggle();
             } catch (error) {
@@ -83,6 +72,18 @@ export default function ModalOperacao(props: Props) {
         >
           Salvar
         </Button>{" "}
+        <Button className={!props.participanteId ? "d-none" : ""} color="danger" onClick={async () => {
+          if (!confirm("Deseja mesmo deletar?")) {
+            return;
+          }
+
+          let db = new DatabaseManager(PARTICIPANTES_STORE_NAME);
+          await db.remover(props.participanteId);
+          props.onSave();
+          props.toggle();
+        }}>
+          Deletar
+        </Button>
         <Button color="secondary" onClick={() => props.toggle()}>
           Cancelar
         </Button>

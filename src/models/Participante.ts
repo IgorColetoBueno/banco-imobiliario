@@ -1,7 +1,11 @@
 export class Participante {
-  id: string;
+  id: number;
   nome: string;
   historico: Historico[];
+
+  constructor(){
+    this.historico = []
+  }
 
   public get valor(): number {
     return this.historico
@@ -10,7 +14,6 @@ export class Participante {
   }
 
   public static mapListToParticipanteList(list: any[]) {
-    debugger;
     return list.map(item => {
       let obj = new Participante();
       obj.id = item.id;
