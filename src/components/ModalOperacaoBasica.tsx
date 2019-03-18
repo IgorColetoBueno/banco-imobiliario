@@ -67,11 +67,11 @@ export default function ModalOperacao(props: Props) {
             try {
               let { participante } = props;
               let montante = props.debito ? (valor * -1) : valor
-              let obj = { ...participante, historico: [...participante.historico, { valor: montante, observacao }] } as Participante;
+              let obj = { ...participante, historico: [...participante.historico, { observacao, valor: montante, dataRegistro: new Date() }] } as Participante;
               const db = new DatabaseManager(PARTICIPANTES_STORE_NAME)
 
               await db.salvar(obj)
-              
+
               setValor(1)
               setObservacao("")
               props.onSave();

@@ -1,5 +1,5 @@
 export default class DatabaseManager {
-  private readonly databaseName: string = "ALPHA_COLETAS_DB";
+  private readonly databaseName: string = "BANCO_IMOBILIARIO";
   private storeName: string;
 
   private indexedDB: IDBFactory =

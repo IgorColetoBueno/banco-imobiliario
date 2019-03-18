@@ -15,10 +15,12 @@ import "@fortawesome/fontawesome-free/css/all.css";
 import ModalOperacao from "./components/ModalOperacaoBasica";
 import ModalCadastroParticipante from "./components/ModalCadastroParticipante";
 import Button from "reactstrap/lib/Button";
+import ModalHistoricoOperacoes from "./components/ModalHistoricoOperacoes";
 
 export const PARTICIPANTES_STORE_NAME = "Participantes";
 const MODAL_OPERACAO_NAME = "modal-operacao";
 const MODAL_CADASTRO_PARTICIPANTE_NAME = "modal-cadastro-participante";
+const MODAL_HISTORICO_OPERACOES_NAME = "modal-historico";
 const MODAL_TRANSFERENCIA_NAME = "modal-transferencia";
 
 interface Props { }
@@ -26,6 +28,7 @@ interface Props { }
 interface State {
   modalOperacaoIsOpen?: boolean;
   modalCadastroParticipanteIsOpen?: boolean;
+  modalHistoricoIsOpen?: boolean;
   participanteIdEdit?: number;
   db: DatabaseManager;
   participantes: Participante[];
@@ -75,11 +78,18 @@ class App extends Component<Props, State> {
             <CardHeader>
               <div className="d-flex justify-content-between">
                 <CardTitle>{item.nome}</CardTitle>
-                <Button size="sm" color="info" onClick={() => {
-                  this.renderModalCadastroParticipante(item.id)
-                }}>
-                  <i className="fas fa-pencil-alt"></i>
-                </Button>
+                <div>
+                  <Button size="sm" color="info" onClick={() => {
+                    this.renderModalCadastroParticipante(item.id)
+                  }}>
+                    <i className="fas fa-pencil-alt"></i>
+                  </Button>
+                  <Button className="ml-1" size="sm" color="secondary" onClick={() => {
+                    this.renderModalHistorico(item)
+                  }}>
+                    <i className="fas fa-file-invoice-dollar"></i>
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardBody className="d-flex justify-content-between">
@@ -132,6 +142,13 @@ class App extends Component<Props, State> {
     await this.togleModalCadastroParticipante();
   }
 
+  async renderModalHistorico(
+    participanteSelecionado: Participante
+  ) {
+    await this.setState({ participanteSelecionado });
+    await this.togleModalHistorico();
+  }
+
   async togleModalOperacao() {
     let { modalOperacaoIsOpen } = this.state;
     await this.setState({ modalOperacaoIsOpen: !modalOperacaoIsOpen });
@@ -140,6 +157,11 @@ class App extends Component<Props, State> {
   async togleModalCadastroParticipante() {
     let { modalCadastroParticipanteIsOpen } = this.state;
     await this.setState({ modalCadastroParticipanteIsOpen: !modalCadastroParticipanteIsOpen });
+  }
+
+  async togleModalHistorico() {
+    let { modalHistoricoIsOpen } = this.state;
+    await this.setState({ modalHistoricoIsOpen: !modalHistoricoIsOpen });
   }
 
   render() {
@@ -161,6 +183,15 @@ class App extends Component<Props, State> {
               this.updateParticipantes()
             }}
           />
+          {/* Modal de histórico */}
+          <ModalHistoricoOperacoes
+            toggle={async () => await this.togleModalHistorico()}
+            participante={this.state.participanteSelecionado}
+            modalId={MODAL_HISTORICO_OPERACOES_NAME}
+            key={MODAL_HISTORICO_OPERACOES_NAME}
+            isOpen={this.state.modalHistoricoIsOpen}
+          />
+          {/* Modal de cadastro de participantes */}
           <ModalCadastroParticipante
             participanteId={this.state.participanteIdEdit}
             isOpen={this.state.modalCadastroParticipanteIsOpen}

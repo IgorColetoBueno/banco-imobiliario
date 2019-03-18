@@ -26,5 +26,6 @@ export class Participante {
 
 export interface Historico {
   valor: number;
+  dataRegistro:Date;
   observacao: string;
 }
