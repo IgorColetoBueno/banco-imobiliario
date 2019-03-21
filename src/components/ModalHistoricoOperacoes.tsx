@@ -1,16 +1,8 @@
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  ListGroup,
-  Table
-} from "reactstrap";
-import { Participante } from "../models/Participante";
 import * as React from "react";
-import ListGroupItem from "reactstrap/lib/ListGroupItem";
-import { NumberUtil, FormatoUnidadeDeMedida } from "../utils/number";
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+
+import { Participante } from "../models/Participante";
+import { FormatoUnidadeDeMedida, NumberUtil } from "../utils/number";
 
 interface Props {
   participante?: Participante;
@@ -28,9 +20,7 @@ export default function ModalHistoricoOperacoes(props: Props) {
       toggle={() => props.toggle()}
       className={props.className}
     >
-      <ModalHeader>
-        {props.participante.nome}
-      </ModalHeader>
+      <ModalHeader>{props.participante.nome}</ModalHeader>
       <ModalBody>
         <table className="table table-responsive-sm">
           <thead>
@@ -43,12 +33,20 @@ export default function ModalHistoricoOperacoes(props: Props) {
           <tbody>
             {props.participante.historico.map((item, i) => (
               <tr key={`tr-${i}`}>
-                <td>{item.observacao ? item.observacao : "Não há observação."}</td>
+                <td>
+                  {item.observacao ? item.observacao : "Não há observação."}
+                </td>
 
                 <td>{item.dataRegistro.toLocaleString()}</td>
-                <td className="ml-3">{NumberUtil.toDisplayNumber(item.valor, 2, FormatoUnidadeDeMedida.BRL)}</td>
-
-              </tr>))}
+                <td className="ml-3">
+                  {NumberUtil.toDisplayNumber(
+                    item.valor,
+                    2,
+                    FormatoUnidadeDeMedida.BRL
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </ModalBody>

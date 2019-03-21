@@ -16,6 +16,7 @@ import ModalOperacao from "./components/ModalOperacaoBasica";
 import ModalCadastroParticipante from "./components/ModalCadastroParticipante";
 import Button from "reactstrap/lib/Button";
 import ModalHistoricoOperacoes from "./components/ModalHistoricoOperacoes";
+import ModalOperacaoTransferencia from "./components/ModalOperacaoTransferencia";
 
 export const PARTICIPANTES_STORE_NAME = "Participantes";
 const MODAL_OPERACAO_NAME = "modal-operacao";
@@ -23,12 +24,13 @@ const MODAL_CADASTRO_PARTICIPANTE_NAME = "modal-cadastro-participante";
 const MODAL_HISTORICO_OPERACOES_NAME = "modal-historico";
 const MODAL_TRANSFERENCIA_NAME = "modal-transferencia";
 
-interface Props { }
+interface Props {}
 
 interface State {
   modalOperacaoIsOpen?: boolean;
   modalCadastroParticipanteIsOpen?: boolean;
   modalHistoricoIsOpen?: boolean;
+  modalTransferenciaIsOpen?: boolean;
   participanteIdEdit?: number;
   db: DatabaseManager;
   participantes: Participante[];
@@ -79,15 +81,24 @@ class App extends Component<Props, State> {
               <div className="d-flex justify-content-between">
                 <CardTitle>{item.nome}</CardTitle>
                 <div>
-                  <Button size="sm" color="info" onClick={() => {
-                    this.renderModalCadastroParticipante(item.id)
-                  }}>
-                    <i className="fas fa-pencil-alt"></i>
+                  <Button
+                    size="sm"
+                    color="info"
+                    onClick={() => {
+                      this.renderModalCadastroParticipante(item.id);
+                    }}
+                  >
+                    <i className="fas fa-pencil-alt" />
                   </Button>
-                  <Button className="ml-1" size="sm" color="secondary" onClick={() => {
-                    this.renderModalHistorico(item)
-                  }}>
-                    <i className="fas fa-file-invoice-dollar"></i>
+                  <Button
+                    className="ml-1"
+                    size="sm"
+                    color="secondary"
+                    onClick={() => {
+                      this.renderModalHistorico(item);
+                    }}
+                  >
+                    <i className="fas fa-file-invoice-dollar" />
                   </Button>
                 </div>
               </div>
@@ -120,11 +131,28 @@ class App extends Component<Props, State> {
   }
 
   renderActionButtons(): React.ReactNode {
-    return <Col>
-      <Button color="success" onClick={() => this.renderModalCadastroParticipante(null)}>
-        Novo participante
-      </Button>
-    </Col>
+    return (
+      <React.Fragment>
+        <Col>
+          <Button
+            className="mr-1 mb-1"
+            color="success"
+            onClick={async () =>
+              await this.renderModalCadastroParticipante(null)
+            }
+          >
+            <i className="fas fa-plus" /> Novo participante
+          </Button>
+          <Button
+            className="mr-1 mb-1"
+            color="secondary"
+            onClick={async () => await this.renderModalTransferencia()}
+          >
+            <i className="fas fa-hand-holding-usd" /> Nova transferência
+          </Button>
+        </Col>
+      </React.Fragment>
+    );
   }
 
   async renderModalOperacao(
@@ -135,16 +163,16 @@ class App extends Component<Props, State> {
     await this.togleModalOperacao();
   }
 
-  async renderModalCadastroParticipante(
-    id?: number
-  ) {
+  async renderModalTransferencia() {
+    await this.togleModalTransferencia();
+  }
+
+  async renderModalCadastroParticipante(id?: number) {
     await this.setState({ participanteIdEdit: id });
     await this.togleModalCadastroParticipante();
   }
 
-  async renderModalHistorico(
-    participanteSelecionado: Participante
-  ) {
+  async renderModalHistorico(participanteSelecionado: Participante) {
     await this.setState({ participanteSelecionado });
     await this.togleModalHistorico();
   }
@@ -156,7 +184,9 @@ class App extends Component<Props, State> {
 
   async togleModalCadastroParticipante() {
     let { modalCadastroParticipanteIsOpen } = this.state;
-    await this.setState({ modalCadastroParticipanteIsOpen: !modalCadastroParticipanteIsOpen });
+    await this.setState({
+      modalCadastroParticipanteIsOpen: !modalCadastroParticipanteIsOpen
+    });
   }
 
   async togleModalHistorico() {
@@ -164,10 +194,17 @@ class App extends Component<Props, State> {
     await this.setState({ modalHistoricoIsOpen: !modalHistoricoIsOpen });
   }
 
+  async togleModalTransferencia() {
+    let { modalTransferenciaIsOpen } = this.state;
+    await this.setState({
+      modalTransferenciaIsOpen: !modalTransferenciaIsOpen
+    });
+  }
+
   render() {
     return (
       <React.Fragment>
-        <Navbar title="Banco imobiliário" />
+        <Navbar icon="fas fa-piggy-bank" title="Banco imobiliário" />
         <Container className="pt-3" fluid>
           <Row>{this.renderActionButtons()}</Row>
           <Row>{this.renderCards()}</Row>
@@ -180,7 +217,7 @@ class App extends Component<Props, State> {
             key={MODAL_OPERACAO_NAME}
             debito={this.state.debito}
             onSave={async () => {
-              this.updateParticipantes()
+              this.updateParticipantes();
             }}
           />
           {/* Modal de histórico */}
@@ -190,6 +227,17 @@ class App extends Component<Props, State> {
             modalId={MODAL_HISTORICO_OPERACOES_NAME}
             key={MODAL_HISTORICO_OPERACOES_NAME}
             isOpen={this.state.modalHistoricoIsOpen}
+          />
+          {/* Modal de transferência */}
+          <ModalOperacaoTransferencia
+            participantes={this.state.participantes}
+            toggle={async () => await this.togleModalTransferencia()}
+            modalId={MODAL_TRANSFERENCIA_NAME}
+            key={MODAL_TRANSFERENCIA_NAME}
+            onSave={() => {
+              this.updateParticipantes();
+            }}
+            isOpen={this.state.modalTransferenciaIsOpen}
           />
           {/* Modal de cadastro de participantes */}
           <ModalCadastroParticipante
