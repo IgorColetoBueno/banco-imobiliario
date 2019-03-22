@@ -17,6 +17,10 @@ import ModalCadastroParticipante from "./components/ModalCadastroParticipante";
 import Button from "reactstrap/lib/Button";
 import ModalHistoricoOperacoes from "./components/ModalHistoricoOperacoes";
 import ModalOperacaoTransferencia from "./components/ModalOperacaoTransferencia";
+import ButtonDropdown from "reactstrap/lib/ButtonDropdown";
+import DropdownToggle from "reactstrap/lib/DropdownToggle";
+import DropdownMenu from "reactstrap/lib/DropdownMenu";
+import DropdownItem from "reactstrap/lib/DropdownItem";
 
 export const PARTICIPANTES_STORE_NAME = "Participantes";
 const MODAL_OPERACAO_NAME = "modal-operacao";
@@ -36,6 +40,7 @@ interface State {
   participantes: Participante[];
   debito?: boolean;
   participanteSelecionado: Participante;
+  dropdownMaisOpcoesOpen?: boolean;
 }
 
 class App extends Component<Props, State> {
@@ -47,7 +52,8 @@ class App extends Component<Props, State> {
       participantes: [],
       modalOperacaoIsOpen: false,
       modalCadastroParticipanteIsOpen: false,
-      participanteSelecionado: new Participante()
+      participanteSelecionado: new Participante(),
+      dropdownMaisOpcoesOpen: false
     };
   }
 
@@ -150,9 +156,87 @@ class App extends Component<Props, State> {
           >
             <i className="fas fa-hand-holding-usd" /> Nova transferência
           </Button>
+          <ButtonDropdown
+            className="mr-1 mb-1"
+            isOpen={this.state.dropdownMaisOpcoesOpen}
+            toggle={async () => await this.toggleDropdownMaisOpcoes()}
+          >
+            <DropdownToggle color="primary" caret>
+              Mais...
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem onClick={async () => await this.reiniciarJogo()}>
+                <i className="fas fa-funnel-dollar" /> Reiniciar jogo
+              </DropdownItem>
+              <DropdownItem divider />
+              <DropdownItem
+                className="bg-danger text-white"
+                onClick={async () => await this.resetarJogo()}
+              >
+                <i className="far fa-times-circle" /> Excluir tudo
+              </DropdownItem>
+            </DropdownMenu>
+          </ButtonDropdown>
         </Col>
       </React.Fragment>
     );
+  }
+  async reiniciarJogo(): Promise<any> {
+    const valorRecebido = prompt(
+      `Reiniciar o jogo é uma operação sem volta. Digite o valor para confirmar ou cancele para sair.`
+    );
+
+    if (!valorRecebido) {
+      return;
+    }
+
+    try {
+      const valor = parseFloat(valorRecebido);
+
+      if (!valor) {
+        alert("Não é possível reiniciar com o valor passado!");
+        return;
+      }
+
+      const db = new DatabaseManager(PARTICIPANTES_STORE_NAME);
+      const listaParticipantes = await db.obterTodos();
+
+      listaParticipantes.forEach(async item => {
+        let newItem = {
+          ...item,
+          historico: [
+            { dataRegistro: new Date(), valor, observacao: "Iniciando o jogo." }
+          ]
+        } as Participante;
+        await db.salvar(newItem);
+      });
+
+      await this.updateParticipantes();
+    } catch (error) {
+      alert("Não foi possível realizar a operação.");
+    }
+  }
+
+  async toggleDropdownMaisOpcoes(): Promise<void> {
+    await this.setState({
+      dropdownMaisOpcoesOpen: !this.state.dropdownMaisOpcoesOpen
+    });
+  }
+
+  async resetarJogo(): Promise<any> {
+    if (
+      !(
+        prompt(
+          `Resetar o jogo é uma operação sem volta. Digite "Sim" para confirmar`
+        ).toLowerCase() === "sim"
+      )
+    ) {
+      return;
+    }
+
+    const db = new DatabaseManager(PARTICIPANTES_STORE_NAME);
+    await db.limparDados();
+    await this.updateParticipantes();
   }
 
   async renderModalOperacao(
